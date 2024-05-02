@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>评论区</title>
+    <style>
+ body {
+    font-family: Arial, sans-serif;
+    
+   
+background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    
+   
+background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    
+    text
+
+   
+text-align: center;
+    
+   
+color: #333;
+}
+
+.comments {
+    
+   
+margin-top: 20px;
+}
+
+.comment-form {
+    display: flex;
+    flex-wrap: wrap; /* 新增：允许元素在小屏幕上换行 */
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+/* 新增：在小屏幕上使输入框变得更紧凑 */
+@media (max-width: 600px) {
+    .comment-form {
+        flex-direction: column;
+    }
+    textarea {
+        width: 100%;
+    }
+    input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+textarea {
+    width: 70%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input {
+    width: 45%; /* 新增：输入框的宽度 */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    width: 45%; /* 新增：按钮的宽度 */
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-list {
+    border-top: 1px solid #ccc;
+}
+
+.comment {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>评论区</h1>
+        <div class="comments">
+            <!-- 更新后的HTML表单 -->
+<div class="comment-form">
+    <input type="text" id="name" placeholder="姓名">
+    <input type="email" id="email" placeholder="邮箱">
+    <textarea id="comment" placeholder="发表评论"></textarea>
+    <button id="submit">提交评论</button>
+</div>
+            <div class="comment-list" id="comment-list">
+                <!-- 评论列表将在 JavaScript 中动态生成 -->
+            </div>
+        </div>
+    </div>
+    <script>
+                document.addEventListener("DOMContentLoaded", function () {
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const commentTextarea = document.getElementById("comment");
+    const commentList = document.getElementById("comment-list");
+    const submitButton = document.getElementById("submit");
+
+    submitButton.addEventListener("click", function () {
+        const name = nameInput.value;
+        const email = emailInput.value;
+        const commentText = commentTextarea.value;
+
+        if (name.trim() !== "" && email.trim() !== "" && commentText.trim() !== "") {
+            // 创建一个新的评论对象
+            const newComment = {
+                name: name,
+                email: email,
+                comment: commentText
+            };
+
+            // 发送评论数据到服务器
+            fetch("save_comment.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newComment)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 在成功保存评论后，将评论添加到页面
+
+                // 清空输入框
+                nameInput.value = "";
+                emailInput.value = "";
+                commentTextarea.value = "";
+            })
+            .catch(error => {
+                console.error("保存评论时出错：", error);
+            });
+        }
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const commentTextarea = document.getElementById("comment");
+    const commentList = document.getElementById("comment-list");
+    const submitButton = document.getElementById("submit");
+
+    // 从本地存储中获取保存的评论
+    const savedComments = JSON.parse(localStorage.getItem("comments")) || [];
+
+    // 显示保存的评论
+    for (const comment of savedComments) {
+        const commentDiv = document.createElement("div");
+        commentDiv.classList.add("comment");
+        commentDiv.textContent = `${comment.name} (${comment.email}): ${comment.comment}`;
+        commentList.appendChild(commentDiv);
+    }
+
+    submitButton.addEventListener("click", function () {
+        const name = nameInput.value;
+        const email = emailInput.value;
+        const commentText = commentTextarea.value;
+
+        if (name.trim() !== "" && email.trim() !== "" && commentText.trim() !== "") {
+            // 创建一个新的评论对象
+            const newComment = {
+                name: name,
+                email: email,
+                comment: commentText
+            };
+
+            // 添加新评论到已保存的评论中
+            savedComments.push(newComment);
+
+            // 将保存的评论存储到本地存储
+            localStorage.setItem("comments", JSON.stringify(savedComments));
+
+            // 在页面上显示新评论
+            const commentDiv = document.createElement("div");
+            commentDiv.classList.add("comment");
+            commentDiv.textContent = `${newComment.name} (${newComment.email}): ${newComment.comment}`;
+            commentList.appendChild(commentDiv);
+
+            // 清空输入框
+            nameInput.value = "";
+            emailInput.value = "";
+            commentTextarea.value = "";
+        }
+    });
+});
+
+    </script>
+</body>
+</html>
